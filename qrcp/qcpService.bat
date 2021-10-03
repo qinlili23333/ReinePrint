@@ -1,5 +1,6 @@
 @echo off
 title [Launching...]qrcpService
+if not exist receive mkdir receive
 echo Detecting qrcp running status...
 tasklist|find /i "qrcp.exe" ||goto launchService
 goto killService
