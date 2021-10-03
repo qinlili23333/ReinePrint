@@ -1,4 +1,4 @@
-@echo on
+@echo off
 title Print Daemon
 echo Detecing target folder...
 if not exist pending mkdir pending
