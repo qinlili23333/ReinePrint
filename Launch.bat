@@ -13,6 +13,8 @@ for /d %%i in (receivers\*) do (
 echo 正在启动%%i服务
 start %%i\Service.bat
 )
+echo 启动打印服务...
+start deamon.bat
 echo 加载控制台...
 title Reine Print [%VERSION%]
 cls
