@@ -5,3 +5,4 @@
 
 ## 使用以下开源项目
 [qrcode.js](http://davidshimjs.github.io/qrcodejs/)
+[caj2pdf](https://github.com/caj2pdf/caj2pdf)
