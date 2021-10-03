@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 title Print Daemon
 echo Detecing target folder...
 if not exist pending mkdir pending
@@ -8,7 +9,6 @@ cd pending
 echo Daemon launch success
 :scanFiles
 echo Formating file names...
-setlocal enabledelayedexpansion
 for /f "delims=" %%i in ('dir /s/b *.*') do (
     set "foo=%%~nxi"
     set foo=!foo: =!

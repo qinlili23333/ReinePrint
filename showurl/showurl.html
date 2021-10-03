@@ -1,0 +1,39 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Reine Print</title>
+</head>
+
+<body>
+    <div id="qrcode"></div>
+    <p>扫描上方二维码或访问下面的地址打印，请确保设备处于同一局域网</p>
+    <H2 id="ip"></H2>
+    <script>
+        var address = false;
+        function setIP(ip) {
+            address = "http://" + ip + ":9980/receive/printer"
+        }
+    </script>
+    <script src="ip.js"></script>
+    <script src="qrcode.min.js"></script>
+    <script type="text/javascript">
+        if (!address) {
+            document.body.innerHTML = "读取IP失败"
+        } else {
+            document.getElementById("ip").innerText=address
+            var qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: address,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    </script>
+</body>
+
+</html>
