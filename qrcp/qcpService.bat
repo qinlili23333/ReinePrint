@@ -1,5 +1,5 @@
 @echo off
-title [Launching...]qrcpService
+title [Launching]qrcpService
 if not exist receive mkdir receive
 echo Detecting qrcp running status...
 tasklist|find /i "qrcp.exe" ||goto launchService
@@ -20,12 +20,13 @@ tasklist|find /i "qrcp.exe" ||goto launchService
 goto killService
 
 :detectLaunch
-curl http://localhost:9980/receive/printer
+curl http://localhost:9980/receive/printer >nul
 if %ERRORLEVEL%==0 goto launchSuccess
 goto detectLaunch
 
 
 :launchSuccess
+title [Running]qrcpService
 echo qrcp launch success...
 goto watchdog
 
@@ -41,6 +42,7 @@ goto check
 
 
 :qrcpError
+title [Rebooting]qrcpService
 echo Seems that qrcp has died
 echo Detecting qrcp running status...
 tasklist|find /i "qrcp.exe" ||goto launchService
