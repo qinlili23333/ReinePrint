@@ -1,4 +1,5 @@
 @echo off
+cd %~dp0
 title [Launching]qrcpService
 if not exist receive mkdir receive
 echo Detecting qrcp running status...
@@ -31,9 +32,13 @@ echo qrcp launch success...
 goto watchdog
 
 :watchdog
-echo Start Watchdog Service...
+echo Start Daemon Service...
 echo Check qrcp alive every minute...
+echo Check new files every minute...
 :check
+for %%i in (receive\*) do (
+move %%i ..\..\pending >nul
+)
 curl http://localhost:9980/receive/printer >nul
 if not %ERRORLEVEL%==0 goto qrcpError
 echo %time% qrcp alive!
