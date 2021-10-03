@@ -1,0 +1,11 @@
+{
+    "fqdn": "",
+    "interface": "any",
+    "port": 9980,
+    "keepAlive": true,
+    "path": "printer",
+    "secure": false,
+    "tls-key": "",
+    "tls-cert": "",
+    "output": "receive"
+}
