@@ -11,17 +11,39 @@ if not exist error mkdir error
 echo 启动接收服务...
 for /d %%i in (receivers\*) do (
 echo 正在启动%%i服务
-start %%i\Service.bat
+start /min %%i\Service.bat
 )
 echo 启动打印服务...
-start daemon.bat
+start /min daemon.bat
 echo 加载控制台...
+:console
 title Reine Print [%VERSION%]
 cls
 echo Reine Print Console
 echo =============
-echo [0]重启
 echo [1]停止
 echo [2]展示打印地址
 echo =============
 set /p choose=请输入数字
+if %choose%==1 goto stop
+if %choose%==2 goto showurl
+goto console
+
+
+
+:stop
+cls
+echo 正在停止...
+for /d %%i in (receivers\*) do (
+echo 正在停止%%i服务
+start /min %%i\Stop.bat
+)
+taskkill /im cmd.exe /f
+exit
+
+:showurl
+for /f "tokens=1-2 delims=:" %%i in ('ipconfig ^|find /i "IPv4"') do set ip=%%j
+set "ip=%ip: =%"
+echo setIP(^"%ip%^") >ip.js
+start showurl.html
+goto console
