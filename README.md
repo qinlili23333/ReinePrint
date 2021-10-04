@@ -5,7 +5,8 @@
 ## 开发中
 目前已官方支持以下格式：  
 图片类：bmp,jpeg,jpg,png,tif,tiff  
-文档类：caj,doc,docx,pdf,ppt,pptx,txt
+文档类：caj,doc,docx,pdf,ppt,pptx,txt,html
+预处理文件类：xps,oxps
 
 ## 使用方法
 Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）和MS Office后，首先运行`PythonModuleInit.bat`，初始化完成后运行`Launch.bat`即可启动  
@@ -33,3 +34,5 @@ MS Office 2013以上版本（office文档必须）
 [qrcode.js](http://davidshimjs.github.io/qrcodejs/)
 [caj2pdf](https://github.com/caj2pdf/caj2pdf)
 [wkhtmltopdf](https://wkhtmltopdf.org/index.html)
+[PrintXPS](https://github.com/frogmorecs/PrintXPS)
+[oxpsConverter](https://github.com/19871010/oxpsConverter)

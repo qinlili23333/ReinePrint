@@ -1,4 +1,4 @@
-@echo on
+@echo off
 echo CAJ Print Module 1.0.0
 echo Author:Qinlili
 echo Preparing file: %*
