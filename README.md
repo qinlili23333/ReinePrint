@@ -6,7 +6,7 @@
 目前已官方支持以下格式：  
 图片类：bmp,jpeg,jpg,png,tif,tiff  
 文档类：caj,doc,docx,pdf,ppt,pptx,txt,html
-预处理文件类：xps,oxps
+预处理文件类：xps,oxps,ps
 
 ## 使用方法
 Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）和MS Office后，首先运行`PythonModuleInit.bat`，初始化完成后运行`Launch.bat`即可启动  
@@ -14,11 +14,13 @@ Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）�
 请务必确保已经在设置内关闭`Let Windows manage my default printer`并设置了默认打印机，所有打印都会在默认打印机上进行，请不要把默认打印机设置为`Adobe PDF`等虚拟打印机测试  
 如果需要修改打印设置，把打印机的首选项改掉就行了，本项目一律使用你设置的首选项进行打印  
 本项目可以在多网卡设备上运行，但显示地址和二维码默认只显示第一个IP，但你可以通过本机任意IP访问  
+如果你需要打印postscript文件，请打开Acrobat Distiller，在`文件-首选项`中勾选`信任所有文件`，否则一旦打印postscript文件，弹出的是否信任会打断全自动无人值守状态  
 
 
 ## 运行环境
 Python3（caj,office文档必须）  
 MS Office 2013以上版本（office文档必须）  
+Adobe Acrobat Pro DC(postscript必须)
 
 ## 这个项目目前有什么局限性
 对于文件名包含逗号和特殊字符的情况无法处理会直接报错并跳过（空格和括号已经可以处理）  
