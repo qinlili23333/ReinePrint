@@ -18,6 +18,7 @@ Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）�
 
 
 ## 运行环境
+.Net 4.8(oxps文档必须)
 Python3（caj,office文档必须）  
 MS Office 2013以上版本（office文档必须）  
 Adobe Acrobat Pro DC(postscript必须)
