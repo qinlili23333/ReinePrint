@@ -10,8 +10,10 @@ if not exist finished mkdir finished
 if not exist error mkdir error
 echo 启动接收服务...
 for /d %%i in (receivers\*) do (
+if exist %%i\Service.bat (
 echo 正在启动%%i服务
 start /min %%i\Service.bat
+)
 )
 echo 启动打印服务...
 start /min daemon.bat
