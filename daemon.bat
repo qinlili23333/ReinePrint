@@ -1,12 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 title Print Daemon
+if not exist config\printlog.enable set log=rem
 echo Detecing target folder...
 if not exist pending mkdir pending
 if not exist finished mkdir finished
 if not exist error mkdir error
+if not exist logs mkdir logs
 cd pending
 echo Daemon launch success
+%log% echo %time%打印队列服务启动成功>>..\logs\print.log
 :scanFiles
 echo Formating file names...
 for /f "delims=" %%i in ('dir /s/b *.*') do (
@@ -31,20 +34,24 @@ goto scanFiles
 
 :processFile
 set file=%1
+%log% echo %time%正在处理文件%file% >>..\logs\print.log
 for /f "tokens=1-2 delims=." %%j in ("%file%") do set type=%%k
 echo File type is %type%
 if not exist ..\printmodule\%type%\print.bat (
 echo Unsupport type %type%
 echo Please install plugin to print this file
+%log% echo %time%打印失败：不支持打印此格式>>..\logs\print.log
 move %file% ..\error
 exit /b
 )
 start /wait ..\printmodule\%type%\print.bat %file%
 if %ERRORLEVEL%==0 (
+%log% echo %time%打印成功 >>..\logs\print.log
 move %file% ..\finished
 echo Print %file% success
 )
 if not %ERRORLEVEL%==0 (
+%log% echo %time%打印失败：模块返回错误%ERRORLEVEL% >>..\logs\print.log
 move %file% ..\error
 echo Print %file% failed
 )

@@ -9,10 +9,12 @@ echo 请确保设置前已经停止运行
 echo =============
 echo [1]接收服务管理
 echo [2]格式支持管理
+echo [3]打印日志管理
 echo =============
 set /p choose=请输入数字
 if %choose%==1 goto receivers
 if %choose%==2 goto format
+if %choose%==3 goto log
 goto mainmenu
 
 
@@ -141,3 +143,31 @@ goto format
 echo 该格式不存在或当前状态无法进行该操作
 ping 127.1 >nul -n 3
 goto format
+
+
+:log
+cls
+set choose=0
+echo 打印日志管理
+echo =============
+if exist config\printlog.enable (
+echo [1]禁用打印日志)else (
+echo [1]启用打印日志)
+echo [2]查看打印日志
+echo [3]返回
+echo =============
+set /p choose=请输入数字
+if %choose%==1 goto switchlog
+if %choose%==2 if exist logs\print.log (start logs\print.log)else (cls&echo 打印日志不存在&ping 127.1 >nul -n 2&goto log)
+if %choose%==3 goto mainmenu
+goto log
+
+:switchlog
+cls
+if exist config\printlog.enable (
+rename config\printlog.enable printlog.disable
+echo 已禁用打印日志)else (
+rename config\printlog.disable printlog.enable
+echo 已启用打印日志)
+ping 127.1 >nul -n 2
+goto log
