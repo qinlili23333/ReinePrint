@@ -66,3 +66,4 @@ qrcp在无互联网连接获取ip的情况下只能工作在一个网卡上
 [PrintXPS](https://github.com/frogmorecs/PrintXPS)  
 [oxpsConverter](https://github.com/19871010/oxpsConverter)  
 [7zip](https://www.7-zip.org/)  
+[PDFtoPrinter](http://www.columbia.edu/~em36/pdftoprinter.html)  
