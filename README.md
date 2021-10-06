@@ -1,8 +1,10 @@
 # ReinePrint
-一个简易的网页打印服务端，可扩展各类文件格式支持，基于MPL协议永久免费开源  
+一个简易的网页打印服务端，完全模块化可随意扩展，基于MPL协议永久免费开源支持商用  
+所有组件均使用完全开源的解决方案，每一行代码都可被随意审查，MPL协议要求二次开发必须开源，保证了本项目和使用本项目的其他项目都绝对纯净可控  
 `我不赚钱欸我就是玩就是喜欢砸人饭碗`  
 项目名的来源是[月亮国公主六边形战士兰音](https://space.bilibili.com/698029620/)  
-## 开发中
+
+## 格式支持
 目前已官方支持以下格式：  
 图片类：bmp,jpeg,jpg,png,tif,tiff  
 文档类：caj,doc,docx,pdf,ppt,pptx,txt,html
@@ -18,6 +20,13 @@ Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）�
 
 
 ## 运行环境
+### 硬件配置
+CPU：推荐2核心4线程以上  
+内存：可用容量大于4G  
+网络：稳定的局域网连接，（互联网连接是可选的，支持映射端口开启外网打印）  
+硬盘：至少拥有200M以上空闲空间（建议安装在只有ASCII字符且无空格的路径中，建议使用无空格的英文用户名）  
+
+### 软件需求
 .Net 4.8(oxps文档必须)  
 Python3（caj,office文档必须）  
 MS Office 2013以上版本（office文档必须）  
@@ -26,6 +35,7 @@ Adobe Acrobat Pro DC(postscript必须)
 ## 这个项目目前有什么局限性
 对于文件名包含逗号和特殊字符的情况无法处理会直接报错并跳过（空格和括号已经可以处理）  
 在配置极低的电脑上可能无法打印超大型的ppt/pptx  
+qrcp在无互联网连接获取ip的情况下只能工作在一个网卡上  
 
 ## 为什么有些文件打印失败了
 请按照以下顺序检查出错原因：  
@@ -50,8 +60,9 @@ Adobe Acrobat Pro DC(postscript必须)
 提Issue  
 
 ## 使用以下开源项目
-[qrcode.js](http://davidshimjs.github.io/qrcodejs/)
-[caj2pdf](https://github.com/caj2pdf/caj2pdf)
-[wkhtmltopdf](https://wkhtmltopdf.org/index.html)
-[PrintXPS](https://github.com/frogmorecs/PrintXPS)
-[oxpsConverter](https://github.com/19871010/oxpsConverter)
+[qrcode.js](http://davidshimjs.github.io/qrcodejs/)  
+[caj2pdf](https://github.com/caj2pdf/caj2pdf)（包括[MuPDF](https://www.mupdf.com/)）  
+[wkhtmltopdf](https://wkhtmltopdf.org/index.html)  
+[PrintXPS](https://github.com/frogmorecs/PrintXPS)  
+[oxpsConverter](https://github.com/19871010/oxpsConverter)  
+[7zip](https://www.7-zip.org/)  
