@@ -43,7 +43,9 @@ for /d %%i in (receivers\*) do (
 echo 正在停止%%i服务
 start /min %%i\Stop.bat
 )
+taskkill /im ping.exe /f
 taskkill /im cmd.exe /f
+taskkill /im ping.exe /f
 exit
 
 :showurl

@@ -13,6 +13,7 @@
 ## 使用方法
 Clone本项目到本地，确认已经安装Python3（需加入`PATH`变量）和MS Office后，首先运行`PythonModuleInit.bat`，初始化完成后运行`Launch.bat`即可启动  
 如果你使用内置的`qrcp`接收服务请务必在路由器上放行本机的`9980`端口  
+如果你使用内置的`filebrowser`接收服务请务必在路由器上放行本机的`8080`端口  
 请务必确保已经在设置内关闭`Let Windows manage my default printer`并设置了默认打印机，所有打印都会在默认打印机上进行，请不要把默认打印机设置为`Adobe PDF`等虚拟打印机测试  
 如果需要修改打印设置，把打印机的首选项改掉就行了，本项目一律使用你设置的首选项进行打印  
 本项目可以在多网卡设备上运行，但显示地址和二维码默认只显示第一个IP，但你可以通过本机任意IP访问  
@@ -67,3 +68,4 @@ qrcp在无互联网连接获取ip的情况下只能工作在一个网卡上
 [oxpsConverter](https://github.com/19871010/oxpsConverter)  
 [7zip](https://www.7-zip.org/)  
 [PDFtoPrinter](http://www.columbia.edu/~em36/pdftoprinter.html)  
+[filebrowser](https://github.com/filebrowser/filebrowser)  
