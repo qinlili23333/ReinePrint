@@ -2,6 +2,7 @@
 setlocal enabledelayedexpansion
 title Print Daemon
 if not exist config\printlog.enable set log=rem
+if exist config\detectonline.enable set skipdetect=rem
 echo Detecing target folder...
 if not exist pending mkdir pending
 if not exist finished mkdir finished
@@ -24,6 +25,21 @@ set "name=!name:(=!"
 set "name=!name:)=!"
 ren "%%a" "!name!"
 )
+
+%skipdetect% goto processfile
+FOR /F "tokens=2* delims==" %%A in (
+  'wmic printer where "default=True" get name /value'
+  ) do SET printer=%%A
+
+FOR /F "tokens=2* delims==" %%A in (
+  'wmic printer where "workoffline=True" get name /value'
+  ) do SET offline=%%A
+if "%printer%"=="%offline%" (
+echo Printer offline, pause printing...
+%log% echo %time%打印机离线，暂停打印 >>..\logs\print.log
+)
+
+:processfile
 for %%i in (*) do (
 echo Processing %%i
 call :processFile %%i

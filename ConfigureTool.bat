@@ -10,11 +10,13 @@ echo =============
 echo [1]接收服务管理
 echo [2]格式支持管理
 echo [3]打印日志管理
+echo [4]打印机检测开关
 echo =============
 set /p choose=请输入数字
 if %choose%==1 goto receivers
 if %choose%==2 goto format
 if %choose%==3 goto log
+if %choose%==4 goto printerdetect
 goto mainmenu
 
 
@@ -171,3 +173,13 @@ rename config\printlog.disable printlog.enable
 echo 已启用打印日志)
 ping 127.1 >nul -n 2
 goto log
+
+:printerdetect
+cls
+if exist config\detectonline.enable (
+rename config\detectonline.enable detectonline.disable
+echo 已禁用打印机检测，无视打印机是否在线)else (
+rename config\detectonline.disable detectonline.enable
+echo 已启用打印机检测，打印机离线后暂停任务)
+ping 127.1 >nul -n 2
+goto mainmenu
