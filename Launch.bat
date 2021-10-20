@@ -1,5 +1,5 @@
 @echo off
-set VERSION=Alpha0.1.7
+set VERSION=Release1.0.0
 title [启动中...]Reine Print [%VERSION%]
 echo Reine Print
 echo 开发：琴梨梨
@@ -19,7 +19,7 @@ echo 启动打印服务...
 start /min daemon.bat
 echo 加载控制台...
 :console
-title Reine Print [%VERSION%]
+title [运行中]Reine Print [%VERSION%]
 cls
 set choose=0
 echo Reine Print Console
