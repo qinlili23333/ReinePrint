@@ -15,4 +15,5 @@ if not %PROCESSOR_ARCHITECTURE%==AMD64 (
 echo 当前架构是%PROCESSOR_ARCHITECTURE%，不受官方支持)else (echo 当前架构为AMD64，受官方支持)
 if %NUMBER_OF_PROCESSORS% GEQ 4 (
 echo 当前设备逻辑核心数量为%NUMBER_OF_PROCESSORS%，可以流畅工作)else (echo 当前设备逻辑核心数小于4，可能无法打印某些格式)
+sc query|find "Spooler" >nul && echo 系统打印服务正在运行 || echo 系统打印服务不在运行！
 pause >nul
