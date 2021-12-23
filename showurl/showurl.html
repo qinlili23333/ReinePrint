@@ -8,23 +8,39 @@
 </head>
 
 <body>
+    <p>扫描二维码或访问地址打印，请确保设备处于同一局域网</p>
+    <H3>QRCP服务（存在安全漏洞，已默认禁用）</H3>
     <div id="qrcode"></div>
-    <p>扫描上方二维码或访问下面的地址打印，请确保设备处于同一局域网</p>
-    <H2 id="ip"></H2>
+    <H3 id="ip"></H3>
+    <H3>filebrowser服务</H3>
+    <div id="qrcode2"></div>
+    <H3 id="ip2"></H3>
     <script>
         var address = false;
+        var localip;
         function setIP(ip) {
-            address = "http://" + ip + ":9980/receive/printer"
+            localip=ip;
         }
     </script>
     <script src="ip.js"></script>
     <script src="qrcode.min.js"></script>
     <script type="text/javascript">
-        if (!address) {
+        if (!localip) {
             document.body.innerHTML = "读取IP失败"
         } else {
+            address = "http://" + localip + ":9980/receive/printer"
             document.getElementById("ip").innerText=address
             var qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: address,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            address = "http://" + localip + ":8080"
+            document.getElementById("ip2").innerText=address
+            var qrcode = new QRCode(document.getElementById("qrcode2"), {
                 text: address,
                 width: 128,
                 height: 128,
