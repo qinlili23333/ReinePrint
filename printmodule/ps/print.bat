@@ -17,6 +17,7 @@ exit %ERRORLEVEL%
 
 echo Finding Acrobat Distiller...
 for /r "C:\Program Files (x86)\Adobe\" %%i in (acrodist.*) do set acrodist=%%i
+for /r "C:\Program Files\Adobe\" %%i in (acrodist.*) do set acrodist=%%i
 if not defined acrodist (
 echo Cannot find Acrobat Distiller, did you installed Acrobat Pro DC?
 exit 404

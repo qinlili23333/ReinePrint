@@ -8,6 +8,7 @@ echo 缺少Python3！)else (echo 已找到Python3)
 if not exist "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" (
 echo 缺少MS Office！ )else (echo 已找到MS Office)
 for /r "C:\Program Files (x86)\Adobe\" %%i in (acrodist.*) do set acrodist=%%i
+for /r "C:\Program Files\Adobe\" %%i in (acrodist.*) do set acrodist=%%i
 if not defined acrodist (
 echo 未找到Acrobat Pro DC！
 )else (echo 已找到Acrobat Pro DC)
