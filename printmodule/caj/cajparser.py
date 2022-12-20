@@ -2,7 +2,12 @@ import os
 import struct
 from shutil import copy
 from subprocess import check_output, STDOUT, CalledProcessError
-from utils import fnd, fnd_all, add_outlines, fnd_rvrs, fnd_unuse_no
+from utils import fnd, fnd_all, add_outlines, fnd_rvrs, fnd_unuse_no, find_redundant_images
+
+try:
+    from PyPDF2 import errors
+except ImportError:
+    from PyPDF2 import utils as errors
 
 KDH_PASSPHRASE = b"FZHMEI"
 
@@ -287,10 +292,23 @@ class CAJParser(object):
             check_output(["mutool", "clean", "pdf.tmp", "pdf_toc.pdf"], stderr=STDOUT)
         except CalledProcessError as e:
             print(e.output.decode("utf-8"))
-            raise SystemExit("Command mutool returned non-zero exit status " + str(e.returncode))
+            print("Command mutool returned non-zero exit status " + str(e.returncode))
+            print("Try merge mode...")
+            os.remove("pdf_toc.pdf")
+            try:
+                 check_output(["mutool", "merge", "-opdf_toc.pdf", "pdf.tmp"], stderr=STDOUT)
+            except CalledProcessError as e:
+                    print(e.output.decode("utf-8"))
+                    SystemExit("Merge mode also failed.")
+            
 
         # Add Outlines
-        add_outlines(self.get_toc(), "pdf_toc.pdf", dest)
+        try:
+            add_outlines(self.get_toc(), "pdf_toc.pdf", dest)
+        except errors.PdfReadError as e:
+            print("errors.PdfReadError:", str(e))
+            copy("pdf_toc.pdf", dest)
+            pass
         os.remove("pdf.tmp")
         os.remove("pdf_toc.pdf")
 
@@ -306,11 +324,14 @@ class CAJParser(object):
             [page_data_offset, size_of_text_section, images_per_page, page_no, unk2, next_page_data_offset] = struct.unpack("iihhii", caj.read(20))
             caj.seek(page_data_offset)
             text_header_read32 = caj.read(32)
-            if (text_header_read32[8:20] == b'COMPRESSTEXT'):
-                [expanded_text_size] = struct.unpack("i", text_header_read32[20:24])
+            if ((text_header_read32[8:20] == b'COMPRESSTEXT') or (text_header_read32[0:12] == b'COMPRESSTEXT')):
+                coff = 8
+                if (text_header_read32[0:12] == b'COMPRESSTEXT'):
+                    coff = 0
+                [expanded_text_size] = struct.unpack("i", text_header_read32[12+coff:16+coff])
                 import zlib
-                caj.seek(page_data_offset + 24)
-                data = caj.read(size_of_text_section - 24)
+                caj.seek(page_data_offset + 16 + coff)
+                data = caj.read(size_of_text_section - 16 - coff)
                 output = zlib.decompress(data, bufsize=expanded_text_size)
                 if (len(output) != expanded_text_size):
                     raise SystemExit("Unexpected:", len(output), expanded_text_size)
@@ -321,13 +342,35 @@ class CAJParser(object):
             page_style = (next_page_data_offset > page_data_offset)
             page_data = HNParsePage(output, page_style)
 
+            current_offset = page_data_offset + size_of_text_section
+            (found, images_per_page) = find_redundant_images(caj, current_offset, images_per_page)
+            if (found):
+                print("Page %d, skipping %d redundant images" % (i+1, images_per_page * ( images_per_page - 1)))
+
             if (images_per_page > 1):
                 if (len(page_data.figures) == images_per_page):
-                    image_list.append(None)
-                    image_list.append(page_data.figures)
+                    if (page_data.figures[0][0] == 0) and (page_data.figures[0][1] == 0):
+                        image_list.append(None)
+                        image_list.append(page_data.figures)
+                    else:
+                        print("Page %d, Image Count %d, first image not at origin, expanding to %d pages"
+                              % (i+1, len(page_data.figures), images_per_page))
                 else:
-                    raise SystemExit("Image Count %d != %d" % (len(page_data.figures), images_per_page))
-            current_offset = page_data_offset + size_of_text_section
+                    print("Page %d, Image Count %d != %d" % (i+1, len(page_data.figures), images_per_page))
+                    if (len(page_data.figures) > images_per_page):
+                        print("\tTruncating Page %d," % (i+1), page_data.figures)
+                        image_list.append(None)
+                        image_list.append(page_data.figures[0:images_per_page])
+                    else:
+                        print("Page %d expanding to %d separate image pages" % (i+1, images_per_page))
+            elif (images_per_page == 1):
+                if ((len(page_data.figures) == 0) or
+                    ((len(page_data.figures) > 0) and
+                    (not ((page_data.figures[0][0] == 0) and (page_data.figures[0][1] == 0))))):
+                    print("Page %d possibly text-only + single figure(%d)" % (i+1, len(page_data.figures)))
+            else:
+                # don't care about images_per_page == 0
+                pass
             for j in range(images_per_page):
                 caj.seek(current_offset)
                 read32 = caj.read(32)
@@ -380,12 +423,31 @@ class CAJParser(object):
                         0
                     )
                 elif (image_type[image_type_enum] == "JPEG"):
-                    (height, width) = struct.unpack(">HH", image_data[163:167])
+                    colorspace = Colorspace.RGB
+                    component = 3
+                    # stock libjpeg location
+                    (SOFn, frame_length, bits_per_pixel, height, width, component) = struct.unpack(">HHBHHB", image_data[158:168])
+                    if (SOFn != 0xFFC0):
+                        # "Intel(R) JPEG Library" location
+                        (SOFn, frame_length, bits_per_pixel, height, width, component) = struct.unpack(">HHBHHB", image_data[0x272:0x27c])
+                        if (SOFn != 0xFFC0):
+                            # neither works, try brute-force
+                            import imagesize
+                            from PIL import Image as pilimage
+                            with open(".tmp.jpg", "wb") as f:
+                                f.write(image_data)
+                                (width, height) = imagesize.get(".tmp.jpg")
+                                pim = pilimage.open(".tmp.jpg")
+                                if (pim.mode == 'L'):
+                                    component = 1
+                            os.remove(".tmp.jpg")
                     if (image_type_enum == 1):
                         # non-inverted JPEG Images
                         height = -height
+                    if (component == 1):
+                        colorspace = Colorspace.L
                     image_item = (
-                        Colorspace.RGB,
+                        colorspace,
                         (300, 300),
                         ImageFormat.JPEG,
                         image_data,
@@ -418,11 +480,14 @@ class CAJParser(object):
             [page_data_offset, size_of_text_section, images_per_page, page_no, unk2, next_page_data_offset] = struct.unpack("iihhii", caj.read(20))
             caj.seek(page_data_offset)
             text_header_read32 = caj.read(32)
-            if (text_header_read32[8:20] == b'COMPRESSTEXT'):
-                [expanded_text_size] = struct.unpack("i", text_header_read32[20:24])
+            if ((text_header_read32[8:20] == b'COMPRESSTEXT') or (text_header_read32[0:12] == b'COMPRESSTEXT')):
+                coff = 8
+                if (text_header_read32[0:12] == b'COMPRESSTEXT'):
+                    coff = 0
+                [expanded_text_size] = struct.unpack("i", text_header_read32[12+coff:16+coff])
                 import zlib
-                caj.seek(page_data_offset + 24)
-                data = caj.read(size_of_text_section - 24)
+                caj.seek(page_data_offset + 16 + coff)
+                data = caj.read(size_of_text_section - 16 - coff)
                 output = zlib.decompress(data, bufsize=expanded_text_size)
                 if (len(output) != expanded_text_size):
                     raise SystemExit("Unexpected:", len(output), expanded_text_size)
@@ -454,12 +519,15 @@ class CAJParser(object):
             # The first 8 bytes are always: 03 80 XX 16 03 80 XX XX,
             # the last one 20 or 21, but the first two can be any.
             # 48/71 has: 03 80 E0 16 03 80 F7 20, the rest uniq
-            if (text_header_read32[8:20] == b'COMPRESSTEXT'):
+            if ((text_header_read32[8:20] == b'COMPRESSTEXT') or (text_header_read32[0:12] == b'COMPRESSTEXT')):
+                coff = 8
+                if (text_header_read32[0:12] == b'COMPRESSTEXT'):
+                    coff = 0
                 # expanded_text_size seems to be always about 2-3 times size_of_text_section, so this is a guess.
-                [expanded_text_size] = struct.unpack("i", text_header_read32[20:24])
+                [expanded_text_size] = struct.unpack("i", text_header_read32[12+coff:16+coff])
                 import zlib
-                caj.seek(page_data_offset + 24)
-                data = caj.read(size_of_text_section - 24)
+                caj.seek(page_data_offset + 16 + coff)
+                data = caj.read(size_of_text_section - 16 - coff)
                 output = zlib.decompress(data, bufsize=expanded_text_size)
                 if (len(output) != expanded_text_size):
                     print("Unexpected:", len(output), expanded_text_size)

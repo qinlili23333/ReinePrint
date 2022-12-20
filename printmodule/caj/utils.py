@@ -1,7 +1,12 @@
 import os
 import sys
-import PyPDF2.pdf as PDF
-from PyPDF2 import PdfFileWriter, PdfFileReader
+import struct
+import PyPDF2.generic as PDF
+try:
+    from PyPDF2 import PdfWriter, PdfReader
+except ImportError:
+    from PyPDF2 import PdfFileWriter as PdfWriter
+    from PyPDF2 import PdfFileReader as PdfReader
 
 
 class Node(object):
@@ -149,7 +154,10 @@ def fnd_unuse_no(nos1, nos2):
 
 def make_dest(pdfw, pg):
     d = PDF.ArrayObject()
-    d.append(pdfw.getPage(pg).indirectRef)
+    try:
+        d.append(pdfw.getPage(pg).indirect_ref)
+    except AttributeError:
+        d.append(pdfw.getPage(pg).indirectRef)
     d.append(PDF.NameObject("/XYZ"))
     d.append(PDF.NullObject())
     d.append(PDF.NullObject())
@@ -179,11 +187,14 @@ def build_outlines_btree(toc):
 
 def add_outlines(toc, filename, output):
     build_outlines_btree(toc)
-    pdf_out = PdfFileWriter()
+    pdf_out = PdfWriter()
     inputFile = open(filename, 'rb')
-    pdf_in = PdfFileReader(inputFile)
+    pdf_in = PdfReader(inputFile)
     for p in pdf_in.pages:
-        pdf_out.addPage(p)
+        try:
+            pdf_out.add_page(p)
+        except AttributeError:
+            pdf_out.addPage(p)
     toc_num = len(toc)
     if (toc_num == 0): # Just copy if toc empty
         outputFile = open(output, "wb")
@@ -217,9 +228,15 @@ def add_outlines(toc, filename, output):
                     PDF.NameObject(v): idorefs[n.index]
                 })
         olitems.append(oli)
-    pdf_out._addObject(ol)
+    try:
+        pdf_out._add_object(ol)
+    except AttributeError:
+        pdf_out._addObject(ol)
     for i in olitems:
-        pdf_out._addObject(i)
+        try:
+            pdf_out._add_object(i)
+        except AttributeError:
+            pdf_out._addObject(i)
     pdf_out._root_object.update({
         PDF.NameObject("/Outlines"): idorefs[0]
     })
@@ -227,3 +244,35 @@ def add_outlines(toc, filename, output):
     pdf_out.write(outputFile)
     inputFile.close()
     outputFile.close()
+
+# See if the page is N * N images, N images written N times,
+# by checking image sizes and within 1 < N <= 10.
+# Return True and N if that's the case.
+def find_redundant_images(caj, initial_offset, images_per_page):
+    sqrts = {
+        4  : 2,
+        9  : 3,
+        16 : 4,
+        25 : 5,
+        36 : 6,
+        49 : 7,
+        64 : 8,
+        81 : 9,
+        100 : 10,
+    }
+
+    if (not (images_per_page in sqrts.keys())):
+        return (False, images_per_page)
+    stride = sqrts[images_per_page]
+    sizes = []
+    current_offset = initial_offset
+    for j in range(images_per_page):
+        caj.seek(current_offset)
+        read32 = caj.read(32)
+        [image_type_enum, offset_to_image_data, size_of_image_data] = struct.unpack("iii", read32[0:12])
+        if ((j >= stride) and (size_of_image_data != sizes[j-stride])):
+            return (False, images_per_page)
+        sizes.append(size_of_image_data)
+        current_offset = offset_to_image_data + size_of_image_data
+    # if we reach here, the image sizes seen are [A, B, C ... N, ..., A, B, C ... N] exactly N times.
+    return (True, stride)

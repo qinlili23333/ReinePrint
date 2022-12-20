@@ -15,6 +15,8 @@ class HNParsePage(object):
         def Text(self, code):
             try:
                 self.characters.append(bytes([self.data[self.offset+5],self.data[self.offset+4]]).decode("gbk"))
+            except IndexError: # short data, nothing to do
+                pass
             except UnicodeDecodeError:
                 # HTL: When cut-and-paste on Linux, these transform to GB18030,
                 # but I believe they are OCR artifacts. Where they occur,
@@ -44,12 +46,24 @@ class HNParsePage(object):
             if (code == 0x8001):
                 self.characters.append("\n")
             while (1):
-                if (self.data[self.offset+1] == 0x80):
-                    break
-                self.characters.append(bytes([self.data[self.offset+3],self.data[self.offset+2]]).decode("gbk"))
+                try:
+                    if (self.data[self.offset+1] == 0x80):
+                        break
+                except IndexError: # short data, nothing to do
+                    return
+                try:
+                    self.characters.append(bytes([self.data[self.offset+3],self.data[self.offset+2]]).decode("gbk"))
+                except UnicodeDecodeError:
+                    self.characters.append("<0x%04X>\n" % (self.data[self.offset+3] * 256 + self.data[self.offset+2]))
+                except IndexError: # short data, nothing to do
+                    return
                 self.offset += 4
 
         def Figure(self, code):
+            try:
+                self.data[self.offset+25]
+            except IndexError: # short data, nothing to do
+                return
             (ignore1, offset_x, offset_y, size_x, size_y, int2, int3, int4, int5)= struct.unpack("<HHHHHIIII", self.data[self.offset:self.offset+26])
             # in units of 1/2.473 pixels
             self.figures.append([offset_x, offset_y, size_x, size_y])
