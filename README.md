@@ -7,7 +7,7 @@
 ## 格式支持
 目前已官方支持以下格式：  
 图片类：bmp,jpeg,jpg,png,tif,tiff  
-文档类：caj,doc,docx,pdf,ppt,pptx,txt,html
+文档类：caj,xls,xlsx,doc,docx,pdf,ppt,pptx,txt,html  
 预处理文件类：xps,oxps,ps
 
 ## 使用方法
