@@ -1,5 +1,5 @@
 @echo off
-set VERSION=Release1.0.0
+set VERSION=Release1.1.2
 title [启动中...]Reine Print [%VERSION%]
 echo Reine Print
 echo 开发：琴梨梨

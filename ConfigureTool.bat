@@ -137,12 +137,14 @@ goto format
 
 :formatengine
 cls
-echo 当前版本尚未支持，请等待新版本支持
-ping 127.1 >nul -n 3
+set /p name=输入需要配置的格式
+if not exist printmodule\%name%\config.bat goto formaterror
+call printmodule\%name%\config.bat
+cls
 goto format
 
 :formaterror
-echo 该格式不存在或当前状态无法进行该操作
+echo 该格式不存在或该操作当前不被该格式支持
 ping 127.1 >nul -n 3
 goto format
 
