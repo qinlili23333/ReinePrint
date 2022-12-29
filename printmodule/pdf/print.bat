@@ -6,7 +6,10 @@ cd %~dp0
 set /p backend=< ..\..\config\pdf-backend
 if %backend%==Acrobat goto Acroprint
 echo Printing file: %*
-PDFtoPrinter.exe ..\..\pending\%*
+echo Pre depass file...
+..\caj\mutool.exe clean -D ..\..\pending\%*  temp.pdf
+PDFtoPrinter.exe temp.pdf
+del /f /s /q temp.pdf
 exit %ERRORLEVEL%
 
 
@@ -16,7 +19,10 @@ if not exist acrobat.location goto find
 :return
 for /f "delims=" %%a in ('type acrobat.location') do set acrobat=%%a
 echo Printing file: %*
-%acrobat% /n /t ..\..\pending\%*
+echo Pre depass file...
+..\caj\mutool.exe clean -D ..\..\pending\%*  temp.pdf
+%acrobat% /n /t temp.pdf
+del /f /s /q temp.pdf
 exit %ERRORLEVEL%
 
 :find
