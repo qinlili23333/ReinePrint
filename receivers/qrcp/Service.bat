@@ -37,7 +37,7 @@ echo Check qrcp alive every minute...
 echo Check new files every minute...
 :check
 for %%i in (receive\*) do (
-move %%i ..\..\pending >nul
+move "%%i" ..\..\pending >nul
 )
 curl http://localhost:9980/receive/printer >nul
 if not %ERRORLEVEL%==0 goto qrcpError
